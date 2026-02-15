@@ -18,11 +18,10 @@ This project demonstrates my SQL problem-solving skills through the analysis of 
 
 **Database Setup**
 
-"""
-   sql
-   
-   CREATE DATABASE zomato_db;
-"""
+```
+  sql
+  CREATE DATABASE zomato_db;
+```
 
 1. **Dropping Existing Tables**
 '''
