@@ -102,7 +102,7 @@ GROUP BY 1, 2
 ORDER BY 1, 3 DESC;
 ```
 
-3. **Popular Time Slots for Orders (2-Hour Intervals)**
+2. **Popular Time Slots for Orders (2-Hour Intervals)**
 **Approach 1:**
 ```
 SELECT
