@@ -23,12 +23,13 @@ CREATE DATABASE zomato_db;
 '''
 
 1. **Dropping Existing Tables**
-'''SQL
-DROP TABLE IF EXISTS deliveries;
-DROP TABLE IF EXISTS Orders;
-DROP TABLE IF EXISTS customers;
-DROP TABLE IF EXISTS restaurants;
-DROP TABLE IF EXISTS riders;
+'''
+ SQL
+ DROP TABLE IF EXISTS deliveries;
+ DROP TABLE IF EXISTS Orders;
+ DROP TABLE IF EXISTS customers;
+ DROP TABLE IF EXISTS restaurants;
+ DROP TABLE IF EXISTS riders;
 '''
 3. **Creating Tables**
 '''SQL
