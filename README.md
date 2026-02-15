@@ -20,6 +20,7 @@ This project demonstrates my SQL problem-solving skills through the analysis of 
 
 """
    sql
+   
    CREATE DATABASE zomato_db;
 """
 
