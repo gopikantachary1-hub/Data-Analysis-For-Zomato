@@ -19,20 +19,19 @@ This project demonstrates my SQL problem-solving skills through the analysis of 
 **Database Setup**
 
 ```
-  sql
   CREATE DATABASE zomato_db;
 ```
 
 1. **Dropping Existing Tables**
-'''
- SQL
+```
  DROP TABLE IF EXISTS deliveries;
  DROP TABLE IF EXISTS Orders;
  DROP TABLE IF EXISTS customers;
  DROP TABLE IF EXISTS restaurants;
  DROP TABLE IF EXISTS riders;
-'''
-3. **Creating Tables**
+```
+
+2. **Creating Tables**
 '''SQL
 CREATE TABLE restaurants (
     restaurant_id SERIAL PRIMARY KEY,
