@@ -14,7 +14,7 @@ This project demonstrates my SQL problem-solving skills through the analysis of 
 
 **Data Cleaning:** Handling null values and ensuring data integrity.
 
-**Business Problems:** Solving 20 specific business problems using SQL queries.
+**Business Problems:** Solving 18 specific business problems using SQL queries.
 
 **Database Setup**
 
@@ -32,29 +32,29 @@ This project demonstrates my SQL problem-solving skills through the analysis of 
 ```
 
 2. **Creating Tables**
-'''SQL
+```   
 CREATE TABLE restaurants (
     restaurant_id SERIAL PRIMARY KEY,
     restaurant_name VARCHAR(100) NOT NULL,
     city VARCHAR(50),
     opening_hours VARCHAR(50)
 );
-'''
-'''SQL
+```
+```
     CREATE TABLE customers (
     customer_id SERIAL PRIMARY KEY,
     customer_name VARCHAR(100) NOT NULL,
     reg_date DATE
 );
-'''
-'''SQL
+```
+```
     CREATE TABLE riders (
     rider_id SERIAL PRIMARY KEY,
     rider_name VARCHAR(100) NOT NULL,
     sign_up DATE
 );
-'''
-'''SQL
+```
+```
     CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
     customer_id INT,
@@ -67,8 +67,8 @@ CREATE TABLE restaurants (
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id)
 );
-'''
-'''SQL
+```
+```
     CREATE TABLE deliveries (
     delivery_id SERIAL PRIMARY KEY,
     order_id INT,
@@ -78,21 +78,20 @@ CREATE TABLE restaurants (
     FOREIGN KEY (order_id) REFERENCES Orders(order_id),
     FOREIGN KEY (rider_id) REFERENCES riders(rider_id)
 );
-'''
+```
 
 Data Import
 Data Cleaning and Handling Null Values
 Before performing analysis, I ensured that the data was clean and free from null values where necessary. For instance:
 
-SQL
 **UPDATE orders**
-'''SQL
+```
 SET total_amount = COALESCE(total_amount, 0);
-'''
+```
 
 **Business Problems Solved**
 1. **Most Frequently Ordered Dishes by a Specific Customer in the Last Year**
-'''SQL
+```
 SELECT
     customer_id,
     order_item,
@@ -101,12 +100,11 @@ FROM orders
 WHERE order_date > CURRENT_DATE - INTERVAL '360 days'
 GROUP BY 1, 2
 ORDER BY 1, 3 DESC;
-'''
+```
 
-2. **Popular Time Slots for Orders (2-Hour Intervals)**
+3. **Popular Time Slots for Orders (2-Hour Intervals)**
 **Approach 1:**
-'''
-SQL
+```
 SELECT
     CASE 
         WHEN EXTRACT(HOUR FROM order_time) BETWEEN 0 AND 1 THEN '00:00 - 02:00'
@@ -117,59 +115,54 @@ SELECT
 FROM Orders
 GROUP BY time_slot
 ORDER BY order_count DESC;
-'''
+```
 
 **Approach 2:**
-'''
-SQL
+```
 SELECT
     FLOOR(EXTRACT(HOUR FROM order_time) / 2) * 2 as start_hour,
     FLOOR(EXTRACT(HOUR FROM order_time) / 2) * 2 + 2 AS end_hour,
     COUNT(*)
 FROM orders
 GROUP BY 1, 2;
-'''
+```
 
 3. **Average Order Value for High-Volume Customers**
 
 **This query identifies customers who have placed more than 750 orders and calculates their average spend.**
-'''
-SQL
+```
 SELECT
     customer_id,
     AVG(total_amount)
 FROM orders
 GROUP BY 1
 HAVING COUNT(*) > 750;
-'''
+```
 
 4. **High-Value Customers (Spending Over 100K)**
 **This query focuses on the total monetary value contributed by each customer.**
-'''
-SQL
+```
 SELECT
     customer_id,
     AVG(total_amount)
 FROM orders
 GROUP BY 1
 HAVING SUM(total_amount) > 100000;
-'''
+```
 
 5. **Orders Without Delivery**
 **This query uses a subquery to find all records in the orders table that do not have a corresponding entry in the deliveries table.**
-'''
-SQL
+```
 SELECT * FROM orders
 WHERE order_id NOT IN (SELECT order_id FROM deliveries);
-'''
+```
 
 **Detailed Business Problem Version:**
 
 **Question: Write a query to find orders that were placed but not delivered.**
 
 **Return: Restaurant name, city, and the number of undelivered orders.**
-'''
-SQL
+```
 SELECT
     r.restaurant_name,
     r.city,
@@ -178,12 +171,11 @@ FROM orders o
 JOIN restaurants r ON o.restaurant_id = r.restaurant_id
 WHERE o.order_id NOT IN (SELECT order_id FROM deliveries)
 GROUP BY r.restaurant_name, r.city;
-'''
+```
 
 6. **Restaurant Revenue Ranking**
 **Question: Rank restaurants by their total revenue from the last year, including their name, total revenue, and rank within their city.**
-'''
-SQL
+```
 SELECT
     r.city,
     r.restaurant_name,
@@ -193,12 +185,11 @@ FROM orders o
 JOIN restaurants r ON o.restaurant_id = r.restaurant_id
 WHERE o.order_date > CURRENT_DATE - INTERVAL '1 year'
 GROUP BY r.city, r.restaurant_name;
-'''
+```
 
-7. **Cancellation Rate Comparison**
+8. **Cancellation Rate Comparison**
 **Question: Calculate and compare the order cancellation rate for each restaurant between the current year and the previous year.**
-'''
-SQL
+```
 SELECT
     r.restaurant_name,
     EXTRACT(YEAR FROM o.order_date) AS year,
@@ -207,12 +198,11 @@ FROM orders o
 JOIN restaurants r ON o.restaurant_id = r.restaurant_id
 WHERE EXTRACT(YEAR FROM o.order_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
 GROUP BY r.restaurant_name, year;
-'''
+```
 
-8. **Rider Average Delivery Time**
+10. **Rider Average Delivery Time**
 **Question: Determine each rider's average delivery time.**
-'''
-SQL
+```
 SELECT
     r.rider_name,
     AVG(EXTRACT(EPOCH FROM (d.delivery_time - o.order_time))/60) AS avg_delivery_time_minutes
@@ -220,12 +210,11 @@ FROM deliveries d
 JOIN orders o ON d.order_id = o.order_id
 JOIN riders r ON d.rider_id = r.rider_id
 GROUP BY r.rider_name;
-'''
+```
 
-9. **Monthly Restaurant Growth Ratio**
+11. **Monthly Restaurant Growth Ratio**
 **Question: Calculate each restaurant's growth ratio based on the total number of delivered orders since its joining.**
-'''
-SQL
+```
 SELECT
     r.restaurant_name,
     TO_CHAR(o.order_date, 'YYYY-MM') AS month,
@@ -236,12 +225,11 @@ FROM orders o
 JOIN deliveries d ON o.order_id = d.order_id
 JOIN restaurants r ON o.restaurant_id = r.restaurant_id
 GROUP BY r.restaurant_name, month;
-'''
+```
 
-10. Customer Segmentation
-Question: Segment customers into 'Gold' or 'Silver' groups based on their total spending compared to the average order value (AOV). If a customer's total spending exceeds the AOV, label them as 'Gold'; otherwise, label them as 'Silver'. Determine each segment's total number of orders and total revenue.
-
-SQL
+12.**Customer Segmentation**
+**Question: Segment customers into 'Gold' or 'Silver' groups based on their total spending compared to the average order value (AOV). If a customer's total spending exceeds the AOV, label them as 'Gold'; otherwise, label them as 'Silver'. Determine each segment's total number of orders and total revenue.**
+```
 WITH aov AS (
     SELECT AVG(total_amount) AS avg_order_value
     FROM orders
@@ -263,13 +251,12 @@ SELECT
     cs.total_orders,
     cs.total_spending
 FROM customer_spending cs;
+```
 
 
-
-11. Rider Monthly Earnings
-Question: Calculate each rider's total monthly earnings, assuming they earn 8% of the order amount.
-
-SQL
+11. **Rider Monthly Earnings**
+**Question: Calculate each rider's total monthly earnings, assuming they earn 8% of the order amount.**
+```
 SELECT
     r.rider_name,
     TO_CHAR(o.order_date, 'YYYY-MM') AS month,
@@ -278,16 +265,16 @@ FROM deliveries d
 JOIN orders o ON d.order_id = o.order_id
 JOIN riders r ON d.rider_id = r.rider_id
 GROUP BY r.rider_name, month;
+```
+12. **Rider Ratings Analysis**
+**Question: Calculate the number of 5-star, 4-star, and 3-star ratings each rider receives based on delivery time.**
 
-12. Rider Ratings Analysis
-Question: Calculate the number of 5-star, 4-star, and 3-star ratings each rider receives based on delivery time.
+**5 stars:** Delivered in less than 15 minutes.
 
-5 stars: Delivered in less than 15 minutes.
+**4 stars:** Delivered in 15-20 minutes.
 
-4 stars: Delivered in 15-20 minutes.
-
-3 stars: Delivered in more than 20 minutes.
-
+**3 stars:** Delivered in more than 20 minutes.
+```
 SQL
 SELECT
     r.rider_name,
@@ -298,12 +285,11 @@ FROM deliveries d
 JOIN orders o ON d.order_id = o.order_id
 JOIN riders r ON d.rider_id = r.rider_id
 GROUP BY r.rider_name;
+```
 
-
-13. Order Frequency by Day
-Question: Analyze order frequency per day of the week and identify the peak day for each restaurant.
-
-SQL
+13. **Order Frequency by Day**
+**Question: Analyze order frequency per day of the week and identify the peak day for each restaurant.**
+```
 SELECT
     r.restaurant_name,
     TO_CHAR(o.order_date, 'Day') AS day_of_week,
@@ -312,13 +298,12 @@ FROM orders o
 JOIN restaurants r ON o.restaurant_id = r.restaurant_id
 GROUP BY r.restaurant_name, day_of_week
 ORDER BY r.restaurant_name, order_count DESC;
+```
 
 
-
-14. Customer Lifetime Value (CLV)
-Question: Calculate the total revenue generated by each customer over all their orders.
-
-SQL
+14. **Customer Lifetime Value (CLV)**
+**Question: Calculate the total revenue generated by each customer over all their orders.**
+```
 SELECT
     c.customer_name,
     SUM(o.total_amount) AS lifetime_value
@@ -326,12 +311,11 @@ FROM orders o
 JOIN customers c ON o.customer_id = c.customer_id
 GROUP BY c.customer_name
 ORDER BY lifetime_value DESC;
+```
 
-
-15. Monthly Sales Trends
-Question: Identify sales trends by comparing each month's total sales to the previous month.
-
-SQL
+15. **Monthly Sales Trends**
+**Question: Identify sales trends by comparing each month's total sales to the previous month.**
+```
 SELECT
     TO_CHAR(order_date, 'YYYY-MM') AS month,
     SUM(total_amount) AS total_sales,
@@ -340,12 +324,11 @@ SELECT
 FROM orders
 GROUP BY month
 ORDER BY month;
+```
 
-
-16. Rider Efficiency
-Question: Evaluate rider efficiency by determining average delivery times and identifying those with the lowest and highest averages.
-
-SQL
+16. **Rider Efficiency**
+**Question: Evaluate rider efficiency by determining average delivery times and identifying those with the lowest and highest averages.**
+```
 SELECT
     r.rider_name,
     AVG(EXTRACT(EPOCH FROM (d.delivery_time - o.order_time))/60) AS avg_delivery_time_minutes
@@ -354,12 +337,11 @@ JOIN orders o ON d.order_id = o.order_id
 JOIN riders r ON d.rider_id = r.rider_id
 GROUP BY r.rider_name
 ORDER BY avg_delivery_time_minutes;
+```
 
-
-17. Order Item Popularity
-Question: Track the popularity of specific order items over time and identify seasonal demand spikes.
-
-SQL
+17. **Order Item Popularity**
+**Question: Track the popularity of specific order items over time and identify seasonal demand spikes.**
+```
 SELECT
     o.order_item,
     TO_CHAR(o.order_date, 'YYYY-MM') AS month,
@@ -367,12 +349,11 @@ SELECT
 FROM orders o
 GROUP BY o.order_item, month
 ORDER BY o.order_item, month;
+```
 
-
-18. Monthly Restaurant Growth Ratio
-Question: Calculate each restaurant's growth ratio based on the total number of delivered orders since its joining.
-
-SQL
+18. **Monthly Restaurant Growth Ratio**
+**Question: Calculate each restaurant's growth ratio based on the total number of delivered orders since its joining.**
+```
 SELECT
     r.restaurant_name,
     TO_CHAR(o.order_date, 'YYYY-MM') AS month,
@@ -385,13 +366,15 @@ JOIN orders o ON r.restaurant_id = o.restaurant_id
 JOIN deliveries d ON o.order_id = d.order_id
 GROUP BY r.restaurant_name, month
 ORDER BY r.restaurant_name, month;
+```
 
+**Conclusion**
 
-Conclusion
 This project highlights my ability to handle complex SQL queries and provides solutions to real-world business problems in the context of a food delivery service like Zomato. 
 The approach taken here demonstrates a structured problem-solving methodology, data manipulation skills, and the ability to derive actionable insights from data.
 
-Notice
+**Notice**
+
 All customer names and data used in this project are computer-generated using AI and random functions. 
 They do not represent real data associated with Zomato or any other entity. This project is solely for learning and educational purposes, and any resemblance to actual persons, businesses, or events is purely coincidental.
 
